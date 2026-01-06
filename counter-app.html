@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- 웹페이지의 문자 인코딩을 설정합니다 (한글이 깨지지 않게!) -->
+    <meta charset="UTF-8">
+    <!-- 모바일에서도 잘 보이도록 반응형 설정을 합니다 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 브라우저 탭에 표시될 제목 -->
+    <title>카운터 앱</title>
+
+    <!-- Tailwind CSS를 CDN으로 불러옵니다 -->
+    <!-- CDN이란? 인터넷에서 CSS 파일을 바로 가져다 쓰는 방식입니다 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<!-- body: 실제로 화면에 보이는 내용들이 들어가는 곳 -->
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center">
+    <!--
+        위 class 설명:
+        - bg-gradient-to-br: 배경을 그라데이션으로 (왼쪽 위에서 오른쪽 아래로)
+        - from-blue-100 to-purple-100: 파란색에서 보라색으로 변하는 그라데이션
+        - min-h-screen: 화면 전체 높이만큼
+        - flex items-center justify-center: 내용물을 화면 가운데에 배치
+    -->
+
+    <!-- 카운터를 담을 카드 모양의 상자 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-12 w-96">
+        <!--
+            위 class 설명:
+            - bg-white: 하얀색 배경
+            - rounded-3xl: 모서리를 많이 둥글게
+            - shadow-2xl: 큰 그림자 효과 (입체감!)
+            - p-12: 안쪽 여백 (padding)
+            - w-96: 가로 크기 고정
+        -->
+
+        <!-- 제목 영역 -->
+        <h1 class="text-4xl font-bold text-center text-blue-600 mb-8">
+            🔢 카운터 앱
+        </h1>
+        <!--
+            - text-4xl: 큰 글씨 크기
+            - font-bold: 굵은 글씨
+            - text-center: 가운데 정렬
+            - text-blue-600: 파란색 글자
+            - mb-8: 아래쪽 여백
+        -->
+
+        <!-- 현재 카운트 숫자를 보여주는 영역 -->
+        <div class="bg-blue-50 rounded-2xl p-8 mb-8">
+            <!-- bg-blue-50: 아주 연한 파란색 배경 -->
+            <p class="text-center text-6xl font-bold text-blue-700" id="counter">
+                0
+            </p>
+            <!--
+                id="counter"를 붙인 이유:
+                JavaScript에서 이 숫자를 찾아서 바꿔주기 위해서입니다!
+                마치 이름표를 붙여놓은 것과 같아요
+            -->
+        </div>
+
+        <!-- 버튼들을 담는 영역 -->
+        <div class="space-y-4">
+            <!-- space-y-4: 버튼들 사이에 세로 간격을 줍니다 -->
+
+            <!-- 증가 버튼 (+1) -->
+            <button
+                onclick="increase()"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95">
+                ➕ 증가 (+1)
+            </button>
+            <!--
+                onclick="increase()": 버튼을 클릭하면 increase 함수를 실행합니다
+
+                class 설명:
+                - w-full: 가로폭을 전체로
+                - bg-blue-500: 파란색 배경
+                - hover:bg-blue-600: 마우스를 올리면 좀 더 진한 파란색
+                - text-white: 하얀색 글자
+                - py-4 px-6: 위아래 여백 4, 좌우 여백 6
+                - rounded-xl: 둥근 모서리
+                - transition-all duration-200: 부드러운 전환 효과 (0.2초)
+                - hover:scale-105: 마우스 올리면 5% 확대
+                - active:scale-95: 클릭하면 5% 축소
+            -->
+
+            <!-- 감소 버튼 (-1) -->
+            <button
+                onclick="decrease()"
+                class="w-full bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95">
+                ➖ 감소 (-1)
+            </button>
+            <!-- 증가 버튼보다 조금 더 연한 파란색을 사용했어요 -->
+
+            <!-- 리셋 버튼 (0으로 초기화) -->
+            <button
+                onclick="reset()"
+                class="w-full bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95">
+                🔄 리셋
+            </button>
+            <!-- 리셋 버튼은 더 연한 파란색으로, 글자는 진한 파란색으로 -->
+        </div>
+    </div>
+
+    <!-- JavaScript 코드 영역 -->
+    <script>
+        // ========================================
+        // 변수 선언: 현재 카운트를 저장할 곳
+        // ========================================
+        // let은 "변수를 만들겠다"는 의미입니다
+        // count라는 이름의 변수를 만들고, 처음 값은 0으로 시작합니다
+        let count = 0;
+
+        /**
+         * increase 함수: 숫자를 1 증가시키는 함수
+         *
+         * 이 함수가 하는 일:
+         * 1. count 변수에 1을 더합니다
+         * 2. 화면에 보이는 숫자를 업데이트합니다
+         */
+        function increase() {
+            // count = count + 1 과 같은 의미입니다
+            // 기존 count 값에 1을 더해서 다시 count에 저장
+            count++;
+
+            // 화면 업데이트 함수를 호출합니다
+            updateDisplay();
+
+            // 콘솔에 현재 값을 출력 (개발자 도구에서 확인 가능)
+            console.log('증가! 현재 카운트:', count);
+        }
+
+        /**
+         * decrease 함수: 숫자를 1 감소시키는 함수
+         *
+         * increase 함수와 비슷하지만, 더하는 대신 빼줍니다
+         */
+        function decrease() {
+            // count = count - 1 과 같은 의미
+            count--;
+
+            updateDisplay();
+
+            console.log('감소! 현재 카운트:', count);
+        }
+
+        /**
+         * reset 함수: 카운터를 0으로 되돌리는 함수
+         *
+         * 게임을 처음부터 다시 시작하는 것처럼
+         * 카운트를 처음 상태(0)로 만듭니다
+         */
+        function reset() {
+            // count를 0으로 초기화
+            count = 0;
+
+            updateDisplay();
+
+            console.log('리셋! 카운트가 0으로 초기화되었습니다');
+        }
+
+        /**
+         * updateDisplay 함수: 화면에 보이는 숫자를 업데이트하는 함수
+         *
+         * 이 함수를 따로 만든 이유:
+         * increase, decrease, reset 함수에서 모두 같은 작업을 하니까
+         * 중복되는 코드를 하나의 함수로 만들어서 재사용합니다!
+         * (이런 방식을 "코드 재사용"이라고 합니다)
+         */
+        function updateDisplay() {
+            // 1. HTML에서 id가 "counter"인 요소를 찾습니다
+            //    (위에서 숫자를 보여주는 <p> 태그에 id="counter"를 붙여놨어요!)
+            const counterElement = document.getElementById('counter');
+
+            // 2. 그 요소의 텍스트 내용을 현재 count 값으로 바꿉니다
+            //    textContent는 "글자 내용"이라는 뜻입니다
+            counterElement.textContent = count;
+        }
+
+        // ========================================
+        // 여기까지가 우리 카운터 앱의 모든 기능입니다!
+        // ========================================
+        //
+        // 정리하면:
+        // - count 변수: 현재 숫자를 저장
+        // - increase(): count를 1 증가
+        // - decrease(): count를 1 감소
+        // - reset(): count를 0으로 초기화
+        // - updateDisplay(): 화면에 숫자 표시
+    </script>
+</body>
+</html>
