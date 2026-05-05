@@ -1,0 +1,692 @@
+/* ================================================================
+   DataGrid CSS — 라이트/다크 테마 지원
+   BEM 클래스 접두사: dg-
+   ================================================================ */
+
+/* ───────────────────────────────────────
+   라이트 테마 (기본값)
+─────────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  /* 배경 · 테두리 */
+  --dg-bg:              #ffffff;
+  --dg-border:          #e2e8f0;
+
+  /* 헤더 */
+  --dg-header-bg:       #f8fafc;
+  --dg-header-color:    #374151;
+
+  /* 행 */
+  --dg-row-hover-bg:    #f1f5f9;
+  --dg-row-selected-bg: #eff6ff;
+  --dg-row-selected-bd: #3b82f6;
+  --dg-row-alt-bg:      #f9fafb;
+  --dg-row-focused-bg:  #fef9c3;
+
+  /* 셀 */
+  --dg-cell-color:      #1e293b;
+  --dg-filter-bg:       #f1f5f9;
+
+  /* 강조색 */
+  --dg-accent:          #3b82f6;
+  --dg-accent-light:    #dbeafe;
+
+  /* 드래그 */
+  --dg-drag-over:       #bfdbfe;
+
+  /* 버튼 */
+  --dg-btn-bg:          #ffffff;
+  --dg-btn-hover-bg:    #f1f5f9;
+  --dg-btn-border:      #d1d5db;
+
+  /* 입력창 */
+  --dg-input-bg:        #ffffff;
+  --dg-input-border:    #d1d5db;
+  --dg-input-focus-bd:  #3b82f6;
+
+  /* 스크롤바 */
+  --dg-scrollbar:       #cbd5e1;
+
+  /* 배지 */
+  --dg-badge-green-bg:  #dcfce7;
+  --dg-badge-green-fg:  #166534;
+  --dg-badge-red-bg:    #fee2e2;
+  --dg-badge-red-fg:    #991b1b;
+  --dg-badge-blue-bg:   #dbeafe;
+  --dg-badge-blue-fg:   #1d4ed8;
+  --dg-badge-gray-bg:   #f3f4f6;
+  --dg-badge-gray-fg:   #6b7280;
+
+  /* 오버레이 */
+  --dg-overlay-bg:      rgba(255,255,255,0.88);
+  --dg-overlay-fg:      #374151;
+
+  /* 그림자 */
+  --dg-shadow:          0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* ───────────────────────────────────────
+   다크 테마
+─────────────────────────────────────── */
+[data-theme="dark"] {
+  --dg-bg:              #1e293b;
+  --dg-border:          #334155;
+
+  --dg-header-bg:       #0f172a;
+  --dg-header-color:    #94a3b8;
+
+  --dg-row-hover-bg:    #2d3f55;
+  --dg-row-selected-bg: #1e3a5f;
+  --dg-row-selected-bd: #60a5fa;
+  --dg-row-alt-bg:      #243245;
+  --dg-row-focused-bg:  #3b3000;
+
+  --dg-cell-color:      #e2e8f0;
+  --dg-filter-bg:       #0f172a;
+
+  --dg-accent:          #60a5fa;
+  --dg-accent-light:    #1e3a5f;
+
+  --dg-drag-over:       #1e3a5f;
+
+  --dg-btn-bg:          #1e293b;
+  --dg-btn-hover-bg:    #334155;
+  --dg-btn-border:      #475569;
+
+  --dg-input-bg:        #0f172a;
+  --dg-input-border:    #475569;
+  --dg-input-focus-bd:  #60a5fa;
+
+  --dg-scrollbar:       #475569;
+
+  --dg-badge-green-bg:  #14532d;
+  --dg-badge-green-fg:  #86efac;
+  --dg-badge-red-bg:    #450a0a;
+  --dg-badge-red-fg:    #fca5a5;
+  --dg-badge-blue-bg:   #1e3a5f;
+  --dg-badge-blue-fg:   #93c5fd;
+  --dg-badge-gray-bg:   #374151;
+  --dg-badge-gray-fg:   #9ca3af;
+
+  --dg-overlay-bg:      rgba(15,23,42,0.88);
+  --dg-overlay-fg:      #e2e8f0;
+
+  --dg-shadow:          0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ───────────────────────────────────────
+   공통 치수 변수
+─────────────────────────────────────── */
+:root {
+  --dg-row-height:      36px;
+  --dg-header-height:   42px;
+  --dg-max-height:      500px;  /* JS에서 덮어씀 */
+  --dg-font-size:       13px;
+  --dg-font-family:     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  --dg-border-radius:   8px;
+  --dg-toolbar-h:       48px;
+  --dg-pager-h:         48px;
+}
+
+/* ================================================================
+   래퍼
+================================================================ */
+.dg-wrapper {
+  display: flex;
+  flex-direction: column;
+  background: var(--dg-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: var(--dg-border-radius);
+  overflow: hidden;
+  font-family: var(--dg-font-family);
+  font-size: var(--dg-font-size);
+  color: var(--dg-cell-color);
+  box-shadow: var(--dg-shadow);
+}
+
+/* ================================================================
+   툴바
+================================================================ */
+.dg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--dg-header-bg);
+  border-bottom: 1px solid var(--dg-border);
+  height: var(--dg-toolbar-h);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.dg-toolbar-left,
+.dg-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+/* 검색창 */
+.dg-search {
+  padding: 5px 10px 5px 30px;
+  border: 1px solid var(--dg-input-border);
+  border-radius: 6px;
+  background: var(--dg-input-bg);
+  color: var(--dg-cell-color);
+  font-size: var(--dg-font-size);
+  font-family: var(--dg-font-family);
+  outline: none;
+  width: 200px;
+  /* 돋보기 아이콘 (SVG inline) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 8px center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.dg-search:focus {
+  border-color: var(--dg-input-focus-bd);
+  box-shadow: 0 0 0 3px var(--dg-accent-light);
+}
+
+/* ── 버튼 공통 ── */
+.dg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--dg-btn-border);
+  border-radius: 6px;
+  background: var(--dg-btn-bg);
+  color: var(--dg-cell-color);
+  font-size: var(--dg-font-size);
+  font-family: var(--dg-font-family);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1.4;
+}
+
+.dg-btn:hover {
+  background: var(--dg-btn-hover-bg);
+  border-color: var(--dg-accent);
+}
+
+.dg-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ── 컬럼 표시/숨기기 패널 ── */
+.dg-col-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--dg-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: 6px;
+  padding: 8px;
+  min-width: 160px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 200;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dg-col-panel-title {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--dg-header-color);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--dg-border);
+}
+
+.dg-col-panel-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.dg-col-panel-item:hover {
+  background: var(--dg-row-hover-bg);
+}
+
+/* ================================================================
+   테이블 래퍼 & 스크롤 컨테이너
+================================================================ */
+.dg-table-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 80px;
+}
+
+.dg-scroll-container {
+  overflow: auto;
+  max-height: var(--dg-max-height);
+}
+
+/* WebKit 스크롤바 */
+.dg-scroll-container::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.dg-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dg-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--dg-scrollbar);
+  border-radius: 4px;
+}
+.dg-scroll-container::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ================================================================
+   테이블
+================================================================ */
+.dg-table {
+  width: 100%;
+  /* border-collapse: separate 필수 — sticky header와 border를 동시에 지원 */
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+/* ================================================================
+   헤더 (thead)
+================================================================ */
+.dg-th {
+  position: sticky;
+  top: 0;
+  z-index: 2;                         /* tbody 셀 위 */
+  background: var(--dg-header-bg);
+  color: var(--dg-header-color);
+  font-weight: 600;
+  height: var(--dg-header-height);
+  padding: 0 12px;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--dg-border);
+  border-right: 1px solid var(--dg-border);
+  vertical-align: middle;
+  user-select: none;
+  overflow: hidden;
+}
+
+.dg-th:last-child { border-right: none; }
+
+/* pinned(고정) 헤더 */
+.dg-th--pinned {
+  z-index: 3;                         /* 일반 헤더 위 */
+  box-shadow: 2px 0 6px rgba(0,0,0,0.07);
+}
+
+.dg-th-checkbox { width: 44px; text-align: center; padding: 0 8px; }
+.dg-th-drag     { width: 32px; text-align: center; padding: 0 4px; color: var(--dg-border); }
+
+/* 헤더 셀 내부 레이아웃 */
+.dg-th-inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  height: 100%;
+}
+
+.dg-th-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 정렬 아이콘 */
+.dg-sort-icon  { font-size: 11px; opacity: 0.35; flex-shrink: 0; }
+.dg-sort-asc,
+.dg-sort-desc  { opacity: 1; color: var(--dg-accent); }
+.dg-sort-none  { opacity: 0.3; }
+
+/* 리사이즈 핸들 */
+.dg-resize-handle {
+  position: absolute;
+  right: -7px;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.dg-resize-handle::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  width: 2px;
+  height: 60%;
+  background: var(--dg-border);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: background 0.15s;
+}
+
+.dg-resize-handle:hover::after,
+.dg-resize-handle:active::after {
+  background: var(--dg-accent);
+}
+
+/* ================================================================
+   필터 행
+================================================================ */
+.dg-filter-row th {
+  position: sticky;
+  top: var(--dg-header-height);
+  z-index: 2;
+  background: var(--dg-filter-bg);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--dg-border);
+  border-right: 1px solid var(--dg-border);
+  box-sizing: border-box;
+}
+
+.dg-filter-row th:last-child { border-right: none; }
+
+.dg-col-filter {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--dg-input-border);
+  border-radius: 4px;
+  background: var(--dg-input-bg);
+  color: var(--dg-cell-color);
+  font-size: 12px;
+  font-family: var(--dg-font-family);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.dg-col-filter:focus {
+  border-color: var(--dg-input-focus-bd);
+  box-shadow: 0 0 0 2px var(--dg-accent-light);
+}
+
+/* ================================================================
+   바디 행
+================================================================ */
+.dg-row { transition: background 0.08s; }
+
+/* 호버 */
+.dg-row:hover .dg-td { background: var(--dg-row-hover-bg); }
+
+/* 짝수 행 줄무늬 */
+.dg-row--alt .dg-td { background: var(--dg-row-alt-bg); }
+
+/* 선택된 행 */
+.dg-row--selected .dg-td { background: var(--dg-row-selected-bg) !important; }
+.dg-row--selected {
+  outline: 1px solid var(--dg-row-selected-bd);
+  outline-offset: -1px;
+}
+
+/* 키보드 포커스된 행 */
+.dg-row--focused .dg-td { background: var(--dg-row-focused-bg) !important; }
+
+/* 드래그 중인 행 */
+.dg-row--dragging { opacity: 0.35; }
+
+/* 드롭 위치 힌트 */
+.dg-row--drop-before .dg-td { border-top: 2px solid var(--dg-accent) !important; }
+.dg-row--drop-after  .dg-td { border-bottom: 2px solid var(--dg-accent) !important; }
+
+/* ================================================================
+   셀 (td)
+================================================================ */
+.dg-td {
+  background: var(--dg-bg);
+  height: var(--dg-row-height);
+  padding: 0 12px;
+  border-bottom: 1px solid var(--dg-border);
+  border-right: 1px solid var(--dg-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  max-width: 0;          /* text-overflow 작동을 위해 필요 */
+  box-sizing: border-box;
+}
+
+.dg-td:last-child { border-right: none; }
+
+/* pinned(고정) 셀 */
+.dg-td--pinned {
+  box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+  background: inherit;   /* sticky 시 부모 배경을 받아야 투명 문제 없음 */
+}
+
+.dg-td-checkbox { width: 44px; text-align: center; padding: 0 8px; }
+.dg-td-drag     { width: 32px; text-align: center; padding: 0 4px; }
+
+/* 편집 가능 셀 커서 힌트 */
+.dg-td--editable:hover {
+  cursor: text;
+  outline: 1px dashed var(--dg-accent);
+  outline-offset: -2px;
+}
+
+/* 인라인 편집 input */
+.dg-cell-editor {
+  width: 100%;
+  height: 28px;
+  border: none;
+  outline: 2px solid var(--dg-accent);
+  border-radius: 3px;
+  background: var(--dg-input-bg);
+  color: var(--dg-cell-color);
+  font-size: var(--dg-font-size);
+  font-family: var(--dg-font-family);
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+/* ================================================================
+   체크박스
+================================================================ */
+.dg-checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--dg-accent);
+}
+
+/* ================================================================
+   드래그 핸들
+================================================================ */
+.dg-drag-handle {
+  display: inline-block;
+  cursor: grab;
+  color: var(--dg-border);
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.15s;
+  padding: 0 2px;
+}
+
+.dg-drag-handle:hover  { color: var(--dg-accent); }
+.dg-drag-handle:active { cursor: grabbing; }
+
+/* ================================================================
+   특수 셀 콘텐츠
+================================================================ */
+.dg-cell-empty {
+  color: var(--dg-border);
+  font-style: italic;
+}
+
+/* 배지 */
+.dg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dg-badge--green { background: var(--dg-badge-green-bg); color: var(--dg-badge-green-fg); }
+.dg-badge--red   { background: var(--dg-badge-red-bg);   color: var(--dg-badge-red-fg);   }
+.dg-badge--blue  { background: var(--dg-badge-blue-bg);  color: var(--dg-badge-blue-fg);  }
+.dg-badge--gray  { background: var(--dg-badge-gray-bg);  color: var(--dg-badge-gray-fg);  }
+
+/* ================================================================
+   페이지네이션
+================================================================ */
+.dg-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: var(--dg-header-bg);
+  border-top: 1px solid var(--dg-border);
+  height: var(--dg-pager-h);
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.dg-page-info {
+  color: var(--dg-header-color);
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.dg-page-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+.dg-page-btn {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--dg-btn-border);
+  border-radius: 5px;
+  background: var(--dg-btn-bg);
+  color: var(--dg-cell-color);
+  font-size: 12px;
+  font-family: var(--dg-font-family);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  line-height: 1;
+}
+
+.dg-page-btn:hover:not(:disabled):not(.dg-page-btn--active) {
+  background: var(--dg-btn-hover-bg);
+  border-color: var(--dg-accent);
+}
+
+.dg-page-btn--active {
+  background: var(--dg-accent);
+  border-color: var(--dg-accent);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: default;
+}
+
+.dg-page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dg-page-ellipsis {
+  padding: 0 4px;
+  color: var(--dg-header-color);
+  font-size: 12px;
+  line-height: 28px;
+}
+
+.dg-page-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.dg-page-size-label {
+  color: var(--dg-header-color);
+  font-size: 12px;
+}
+
+.dg-page-size {
+  padding: 4px 6px;
+  border: 1px solid var(--dg-input-border);
+  border-radius: 5px;
+  background: var(--dg-input-bg);
+  color: var(--dg-cell-color);
+  font-size: 12px;
+  font-family: var(--dg-font-family);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.dg-page-size:focus { border-color: var(--dg-input-focus-bd); }
+
+/* ================================================================
+   오버레이 (로딩 · 빈 상태)
+================================================================ */
+.dg-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 10;
+  font-size: 14px;
+  background: var(--dg-overlay-bg);
+  color: var(--dg-overlay-fg);
+}
+
+.dg-loading { backdrop-filter: blur(2px); }
+
+/* 로딩 스피너 */
+.dg-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--dg-border);
+  border-top-color: var(--dg-accent);
+  border-radius: 50%;
+  animation: dg-spin 0.75s linear infinite;
+}
+
+@keyframes dg-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 빈 상태 아이콘 */
+.dg-empty {
+  color: var(--dg-header-color);
+  font-size: 13px;
+}
+
+.dg-empty::before {
+  content: '📋';
+  font-size: 36px;
+  display: block;
+  text-align: center;
+  margin-bottom: 4px;
+}

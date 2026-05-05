@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataGrid 라이브러리 데모</title>
+  <link rel="stylesheet" href="grid.css">
+  <style>
+    /* ── 데모 페이지 전용 스타일 ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 제목 영역 */
+    .page-title {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* 기능 설명 카드 */
+    .feature-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-card .fi { font-size: 16px; }
+
+    /* API 버튼 패널 */
+    .api-panel {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+
+    .api-panel-title {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .api-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .api-btn {
+      padding: 6px 14px;
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: inherit;
+    }
+
+    .api-btn:hover {
+      background: rgba(255,255,255,0.3);
+      border-color: rgba(255,255,255,0.7);
+    }
+
+    /* 이벤트 로그 */
+    .event-log {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .event-log-title {
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .event-log-list {
+      list-style: none;
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .event-log-list li { padding: 1px 0; }
+    .event-log-list li:first-child { color: #86efac; font-weight: 600; }
+
+    /* 그리드 컨테이너 */
+    #my-grid {
+      /* DataGrid가 이 div를 채운다 */
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- 제목 -->
+  <h1 class="page-title">📊 DataGrid 라이브러리</h1>
+  <p class="page-subtitle">순수 바닐라 JavaScript로 만든 19가지 기능의 데이터 그리드</p>
+
+  <!-- 기능 안내 카드 -->
+  <div class="feature-cards">
+    <div class="feature-card"><span class="fi">🔃</span> 정렬 (Shift=멀티)</div>
+    <div class="feature-card"><span class="fi">🔍</span> 검색 / 필터</div>
+    <div class="feature-card"><span class="fi">📄</span> 페이지네이션</div>
+    <div class="feature-card"><span class="fi">✅</span> 행 선택 (다중)</div>
+    <div class="feature-card"><span class="fi">↔️</span> 컬럼 리사이즈</div>
+    <div class="feature-card"><span class="fi">✏️</span> 인라인 편집</div>
+    <div class="feature-card"><span class="fi">📌</span> 컬럼 고정</div>
+    <div class="feature-card"><span class="fi">⬇️</span> CSV 내보내기</div>
+    <div class="feature-card"><span class="fi">🌙</span> 다크 테마</div>
+    <div class="feature-card"><span class="fi">⠿</span> 행 드래그 정렬</div>
+    <div class="feature-card"><span class="fi">👁️</span> 컬럼 표시/숨김</div>
+    <div class="feature-card"><span class="fi">⌨️</span> 키보드 네비</div>
+  </div>
+
+  <!-- API 버튼 패널 -->
+  <div class="api-panel">
+    <div class="api-panel-title">🛠 API 직접 사용해보기</div>
+    <div class="api-buttons">
+      <button class="api-btn" onclick="handleGetSelected()">선택된 행 가져오기</button>
+      <button class="api-btn" onclick="grid.clearSelection()">선택 초기화</button>
+      <button class="api-btn" onclick="grid.clearFilters()">필터 초기화</button>
+      <button class="api-btn" onclick="grid.setFilter('department', '개발')">개발팀 필터</button>
+      <button class="api-btn" onclick="handleAddRow()">행 추가</button>
+      <button class="api-btn" onclick="handleLoadingDemo()">로딩 데모</button>
+      <button class="api-btn" onclick="grid.exportCSV('all')">전체 CSV 저장</button>
+      <button class="api-btn" onclick="grid.exportCSV('current')">현재 페이지 CSV</button>
+      <button class="api-btn" onclick="grid.hideColumn('phone')">전화번호 숨기기</button>
+      <button class="api-btn" onclick="grid.showColumn('phone')">전화번호 보이기</button>
+      <button class="api-btn" onclick="grid.refresh()">새로고침</button>
+    </div>
+  </div>
+
+  <!-- 이벤트 로그 -->
+  <div class="event-log">
+    <div class="event-log-title">📡 이벤트 로그</div>
+    <ul class="event-log-list" id="event-log">
+      <li>그리드를 조작하면 이벤트가 여기에 표시됩니다.</li>
+    </ul>
+  </div>
+
+  <!-- 그리드 -->
+  <div id="my-grid"></div>
+
+</div>
+
+<!-- ── 라이브러리 로드 ── -->
+<script src="grid.js"></script>
+
+<script>
+  // =====================================================================
+  // 1. 샘플 데이터 생성 (100행)
+  // =====================================================================
+  const departments = ['개발', '디자인', '마케팅', '영업', '인사', '재무', '법무'];
+  const statuses     = ['재직중', '휴가중', '출장중', '퇴직'];
+  const positions    = ['사원', '대리', '과장', '차장', '부장', '이사'];
+  const names = [
+    '김민준', '이서준', '박도윤', '최예준', '정시우', '강주원', '조지호', '윤은우',
+    '장서진', '임하준', '오수민', '한지아', '신가은', '이유나', '김채원', '박소율',
+    '정다은', '최하은', '강민서', '류수아', '이준서', '김지후', '박현우', '윤재원',
+    '장민혁', '임서현', '오지훈', '한동현', '신예원', '이지원',
+  ];
+
+  // 날짜 생성 헬퍼
+  const rDate = (startYear, endYear) => {
+    const s = new Date(startYear, 0, 1).getTime();
+    const e = new Date(endYear, 11, 31).getTime();
+    return new Date(s + Math.random() * (e - s)).toISOString().slice(0, 10);
+  };
+
+  const sampleData = Array.from({ length: 100 }, (_, i) => ({
+    id:          i + 1,
+    name:        names[i % names.length] + (Math.floor(i / names.length) > 0 ? ` ${Math.floor(i / names.length) + 1}` : ''),
+    department:  departments[i % departments.length],
+    position:    positions[i % positions.length],
+    salary:      300 + Math.floor(Math.random() * 700),  // 만원 단위
+    joinDate:    rDate(2015, 2024),
+    status:      statuses[i % statuses.length],
+    performance: Math.floor(Math.random() * 40) + 60,    // 60~100점
+    remote:      Math.random() > 0.5,
+    phone:       `010-${String(Math.floor(Math.random() * 9000) + 1000)}-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+  }));
+
+  // =====================================================================
+  // 2. DataGrid 인스턴스 생성
+  // =====================================================================
+  const grid = new DataGrid({
+    container: '#my-grid',
+
+    columns: [
+      // id: pinned(고정) 컬럼, 정렬 가능
+      {
+        key: 'id',
+        title: 'ID',
+        width: 60,
+        type: 'number',
+        sortable: true,
+        pinned: true,       // 좌측 고정
+      },
+
+      // 이름: 편집 가능 + 필터
+      {
+        key: 'name',
+        title: '이름',
+        width: 110,
+        sortable: true,
+        filterable: true,
+        editable: true,
+      },
+
+      // 부서: 커스텀 렌더러 + 필터
+      {
+        key: 'department',
+        title: '부서',
+        width: 90,
+        sortable: true,
+        filterable: true,
+        render: (value) => {
+          // 부서별 배지 색상
+          const colors = {
+            '개발': 'blue', '디자인': 'green', '마케팅': 'gray',
+            '영업': 'red', '인사': 'gray', '재무': 'gray', '법무': 'gray',
+          };
+          const c = colors[value] || 'gray';
+          return `<span class="dg-badge dg-badge--${c}">${value}</span>`;
+        },
+      },
+
+      // 직급
+      {
+        key: 'position',
+        title: '직급',
+        width: 80,
+        sortable: true,
+        filterable: true,
+      },
+
+      // 연봉: 숫자 타입, 커스텀 렌더러, 편집 가능
+      {
+        key: 'salary',
+        title: '연봉(만원)',
+        width: 110,
+        type: 'number',
+        sortable: true,
+        editable: true,
+        render: (value) => `<span style="font-weight:600">${Number(value).toLocaleString('ko-KR')}만원</span>`,
+      },
+
+      // 입사일: date 타입
+      {
+        key: 'joinDate',
+        title: '입사일',
+        width: 100,
+        type: 'date',
+        sortable: true,
+      },
+
+      // 재직 상태: 커스텀 렌더러
+      {
+        key: 'status',
+        title: '상태',
+        width: 90,
+        sortable: true,
+        render: (value) => {
+          const colors = { '재직중': 'green', '휴가중': 'blue', '출장중': 'gray', '퇴직': 'red' };
+          return `<span class="dg-badge dg-badge--${colors[value] || 'gray'}">${value}</span>`;
+        },
+      },
+
+      // 성과 점수: 숫자 + 진행 바 커스텀 렌더러
+      {
+        key: 'performance',
+        title: '성과점수',
+        width: 130,
+        type: 'number',
+        sortable: true,
+        render: (value) => {
+          const pct = Math.min(100, Math.max(0, value));
+          const color = pct >= 90 ? '#22c55e' : pct >= 75 ? '#3b82f6' : '#f59e0b';
+          return `
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;"></div>
+              </div>
+              <span style="font-size:11px;font-weight:600;color:${color};min-width:28px;">${pct}점</span>
+            </div>`;
+        },
+      },
+
+      // 재택 여부: boolean 타입
+      {
+        key: 'remote',
+        title: '재택',
+        width: 70,
+        type: 'boolean',
+        sortable: true,
+      },
+
+      // 전화번호: 숨기기 가능 데모용
+      {
+        key: 'phone',
+        title: '전화번호',
+        width: 130,
+        sortable: false,
+        editable: true,
+      },
+    ],
+
+    data: sampleData,
+
+    options: {
+      pageSize: 15,
+      selectable: 'multiple',
+      resizable: true,
+      theme: 'light',
+      maxHeight: 460,
+      emptyMessage: '검색 결과가 없습니다.',
+      exportFilename: '직원목록',
+    },
+  });
+
+  // =====================================================================
+  // 3. 이벤트 리스너 등록
+  // =====================================================================
+  const logEl = document.getElementById('event-log');
+
+  // 이벤트 로그에 추가하는 헬퍼
+  function logEvent(emoji, msg) {
+    const li = document.createElement('li');
+    li.textContent = `${emoji} ${new Date().toLocaleTimeString('ko-KR')} — ${msg}`;
+    logEl.prepend(li);
+    // 최대 20줄 유지
+    while (logEl.children.length > 20) logEl.lastChild.remove();
+  }
+
+  // 정렬 이벤트
+  grid.on('sort', ({ sortColumns }) => {
+    const desc = sortColumns.map(s => `${s.key} ${s.dir === 'asc' ? '↑' : '↓'}`).join(', ') || '없음';
+    logEvent('🔃', `정렬 변경: ${desc}`);
+  });
+
+  // 필터 이벤트
+  grid.on('filter', ({ globalSearch, filters }) => {
+    const parts = [];
+    if (globalSearch) parts.push(`검색: "${globalSearch}"`);
+    Object.entries(filters).forEach(([k, v]) => { if (v) parts.push(`${k}: "${v}"`); });
+    logEvent('🔍', `필터: ${parts.length ? parts.join(', ') : '없음'}`);
+  });
+
+  // 행 선택 이벤트
+  grid.on('rowSelect', ({ selectedRows }) => {
+    logEvent('✅', `${selectedRows.length}행 선택됨`);
+  });
+
+  // 셀 편집 이벤트
+  grid.on('cellEdit', ({ key, oldValue, newValue }) => {
+    logEvent('✏️', `편집: [${key}] "${oldValue}" → "${newValue}"`);
+  });
+
+  // 행 클릭 이벤트
+  grid.on('rowClick', ({ row }) => {
+    logEvent('👆', `클릭: ${row.name} (${row.department})`);
+  });
+
+  // 페이지 변경 이벤트
+  grid.on('pageChange', ({ page, pageSize }) => {
+    logEvent('📄', `페이지 ${page} (${pageSize}행씩)`);
+  });
+
+  // 컬럼 리사이즈 이벤트
+  grid.on('columnResize', ({ key, width }) => {
+    logEvent('↔️', `컬럼 [${key}] 폭 → ${width}px`);
+  });
+
+  // 행 드래그 정렬 이벤트
+  grid.on('rowReorder', ({ data }) => {
+    logEvent('⠿', `행 순서 변경 완료 (전체 ${data.length}행)`);
+  });
+
+  // =====================================================================
+  // 4. API 버튼 핸들러
+  // =====================================================================
+
+  // 선택된 행 보기
+  function handleGetSelected() {
+    const rows = grid.getSelectedRows();
+    if (rows.length === 0) {
+      alert('선택된 행이 없습니다.\n행을 클릭하거나 체크박스를 선택해보세요.');
+    } else {
+      const names = rows.map(r => r.name).join(', ');
+      alert(`선택된 ${rows.length}명:\n${names}`);
+    }
+  }
+
+  // 새 행 추가 데모
+  let newRowCount = 0;
+  function handleAddRow() {
+    newRowCount++;
+    const currentData = grid.getData();  // 현재 필터된 데이터 기준이 아닌 원본
+    const allData = [...sampleData,
+      ...Array.from({ length: newRowCount }, (_, i) => ({
+        id: 100 + i + 1,
+        name: `신규입사자 ${i + 1}`,
+        department: '개발',
+        position: '사원',
+        salary: 350,
+        joinDate: new Date().toISOString().slice(0, 10),
+        status: '재직중',
+        performance: 75,
+        remote: false,
+        phone: '010-0000-0000',
+      }))
+    ];
+    grid.setData(allData);
+    logEvent('➕', `행 추가 → 총 ${allData.length}행`);
+  }
+
+  // 로딩 상태 데모
+  function handleLoadingDemo() {
+    grid.setLoading(true);
+    logEvent('⏳', '데이터 불러오는 중...');
+    setTimeout(() => {
+      grid.setLoading(false);
+      logEvent('✅', '데이터 로드 완료!');
+    }, 2000);
+  }
+</script>
+</body>
+</html>
